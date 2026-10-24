@@ -588,14 +588,58 @@
 
                 display: grid;
 
-                grid-template-columns: 320px 1fr;
+                grid-template-columns: minmax(0, 1fr);
 
                 gap: 16px;
 
-                height: calc(100vh - 130px);
+                height: calc(100vh - 180px);
 
             }
 
+            #editor-pane {
+                display: none;
+            }
+
+            #tab-files.editor-focused > div:first-child {
+                display: none !important;
+            }
+
+            #tab-files.editor-focused .explorer-layout {
+                height: calc(100vh - 92px);
+            }
+
+            #tab-files.editor-focused #drop-zone {
+                display: none;
+            }
+
+            #tab-files.editor-focused #editor-pane {
+                display: flex;
+                height: 100%;
+                min-height: 0;
+            }
+
+            .editor-textarea {
+                flex: 1;
+                min-height: 0;
+                width: 100%;
+                background: #05080c;
+                border: none;
+                padding: 16px;
+                font-family: var(--font-mono);
+                font-size: 12px;
+                color: #e2e8f0;
+                resize: none;
+                outline: none;
+                line-height: 1.6;
+            }
+
+            #show-files-btn {
+                display: none;
+            }
+
+            #tab-files.editor-focused #show-files-btn {
+                display: inline-flex;
+            }
 
 
             .explorer-pane {
@@ -632,6 +676,34 @@
 
             }
 
+            .breadcrumbs {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                min-width: 0;
+                overflow-x: auto;
+                white-space: nowrap;
+                scrollbar-width: thin;
+            }
+
+            .breadcrumbs button {
+                flex: 0 0 auto;
+                color: var(--text-muted);
+                font: 11px var(--font-mono);
+                padding: 4px 6px;
+                border-radius: 4px;
+            }
+
+            .breadcrumbs button:hover,
+            .breadcrumbs button[aria-current="location"] {
+                color: var(--accent-green);
+                background: var(--accent-green-bg);
+            }
+
+            .breadcrumb-separator {
+                color: var(--border-light);
+                font-size: 11px;
+            }
 
 
             .file-list {
@@ -717,32 +789,6 @@
             .file-row:hover .file-actions {
 
                 opacity: 1;
-
-            }
-
-
-
-            .editor-textarea {
-
-                flex: 1;
-
-                background: #05080c;
-
-                border: none;
-
-                padding: 16px;
-
-                font-family: var(--font-mono);
-
-                font-size: 12px;
-
-                color: #e2e8f0;
-
-                resize: none;
-
-                outline: none;
-
-                line-height: 1.6;
 
             }
 
@@ -837,37 +883,6 @@
 
             .explorer-pane {
                 min-width: 0;
-            }
-
-            .explorer-layout.editor-focused {
-                grid-template-columns: minmax(0, 1fr);
-                height: calc(100vh - 92px);
-            }
-
-            .editor-focused > div:first-child {
-                display: none !important;
-            }
-
-            .editor-focused #drop-zone {
-                display: none;
-            }
-
-            .editor-focused #editor-pane {
-                height: 100%;
-                min-height: 0;
-            }
-
-            .editor-focused .editor-textarea {
-                min-height: 0;
-                height: 100%;
-            }
-
-            #show-files-btn {
-                display: none;
-            }
-
-            .editor-focused #show-files-btn {
-                display: inline-flex;
             }
 
             .file-info span {
@@ -966,32 +981,26 @@
                 }
 
                 .explorer-layout {
-                    display: flex;
-                    flex-direction: column;
-                    height: auto;
-                    gap: 12px;
+                    display: block;
+                    height: calc(100dvh - 260px);
+                    min-height: 240px;
                 }
 
-                .explorer-layout.editor-focused {
-                    display: flex;
+                #tab-files.editor-focused .explorer-layout {
                     height: calc(100dvh - 170px);
                     min-height: 280px;
                 }
 
-                .editor-focused #editor-pane {
-                    flex: 1;
-                }
-
                 .explorer-pane {
-                    min-height: 240px;
+                    height: 100%;
+                    min-height: 0;
                 }
 
-                #drop-zone {
-                    min-height: 300px;
-                }
-
-                .explorer-pane:not(#drop-zone) {
-                    min-height: 320px;
+                #active-file {
+                    max-width: 38vw;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
                 }
 
                 #tab-files>div:first-child {
@@ -1013,17 +1022,6 @@
 
                 .pane-toolbar {
                     flex-wrap: wrap;
-                }
-
-                #active-file {
-                    max-width: 48%;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
-
-                .editor-textarea {
-                    min-height: 240px;
                 }
 
                 .toast {
@@ -1222,9 +1220,8 @@
 
                             <h2 style="font-size: 18px; font-weight: 700;">File Explorer</h2>
 
-                            <span style="color: var(--text-muted); font-size: 12px;">Klik 2x pada folder atau file untuk
-
-                                berinteraksi</span>
+                            <span style="color: var(--text-muted); font-size: 12px;">Klik dua kali folder untuk
+                                membukanya</span>
 
                         </div>
 
@@ -1255,8 +1252,7 @@
 
                             <div class="pane-toolbar">
 
-                                <span id="current-dir-label"
-                                    style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">/root</span>
+                                <nav id="current-dir-label" class="breadcrumbs" aria-label="Lokasi folder"></nav>
 
                                 <button class="btn-icon" onclick="loadFiles(currentDir)"><i data-lucide="refresh-cw"
                                         style="width: 14px;"></i></button>
@@ -1267,36 +1263,28 @@
 
                         </section>
 
-
-
                         <section class="explorer-pane" id="editor-pane">
 
                             <div class="pane-toolbar">
-
                                 <div style="display:flex; align-items:center; gap:8px; min-width:0;">
                                     <button class="btn" id="show-files-btn" type="button" onclick="showFileList()">
                                         <i data-lucide="arrow-left" style="width:14px;"></i> Daftar File
                                     </button>
                                     <span id="active-file"
-                                        style="font-family: var(--font-mono); font-size: 11px;">Pilih file dari
-                                        explorer</span>
+                                        style="font-family: var(--font-mono); font-size: 11px;"></span>
                                 </div>
-
                                 <div style="display:flex; gap:6px;">
-
-                                    <button class="btn" id="download-btn" onclick="downloadCurrentFile()" disabled><i
-                                            data-lucide="download" style="width: 14px;"></i> Download</button>
-
-                                    <button class="btn btn-primary" onclick="saveFile()"><i data-lucide="save"
-                                            style="width: 14px;"></i> Simpan</button>
-
+                                    <button class="btn" id="download-btn" onclick="downloadCurrentFile()">
+                                        <i data-lucide="download" style="width:14px;"></i> Download
+                                    </button>
+                                    <button class="btn btn-primary" onclick="saveFile()">
+                                        <i data-lucide="save" style="width:14px;"></i> Simpan
+                                    </button>
                                 </div>
-
                             </div>
 
-                            <textarea id="file-content" class="editor-textarea"
-                                placeholder="// Pilih file lalu klik sekali lagi untuk membuka editor..."
-                                disabled></textarea>
+                            <textarea id="file-content" class="editor-textarea" spellcheck="false"
+                                placeholder="Buka file teks dengan klik dua kali untuk mengedit..."></textarea>
 
                         </section>
 
@@ -1327,7 +1315,6 @@
     <script>
 
         let currentFile = '';
-
         let currentDir = '';
         let selectedPath = '';
 
@@ -1498,7 +1485,7 @@
             currentDir = dir;
             selectedPath = '';
 
-            $('current-dir-label').textContent = '/' + dir;
+            renderBreadcrumbs(dir);
 
             const res = await fetch(`/api/files?dir=${encodeURIComponent(dir)}`);
 
@@ -1518,20 +1505,7 @@
 
                 back.innerHTML = `<div class="file-info"><i data-lucide="corner-left-up" style="width:14px;"></i> ..</div>`;
 
-                back.onclick = () => {
-
-                    if (selectedPath === '__parent__') {
-                        selectedPath = '';
-                        const parent = dir.split('/').slice(0, -1).join('/');
-                        loadFiles(parent);
-                        return;
-                    }
-
-                    document.querySelectorAll('.file-row').forEach(row => row.classList.remove('active'));
-                    back.classList.add('active');
-                    selectedPath = '__parent__';
-
-                };
+                back.onclick = () => loadFiles(dir.split('/').slice(0, -1).join('/'));
 
                 tree.appendChild(back);
 
@@ -1539,7 +1513,10 @@
 
 
 
-            files.forEach(f => {
+            files.sort((a, b) =>
+                Number(b.isDirectory) - Number(a.isDirectory) ||
+                a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })
+            ).forEach(f => {
 
                 const item = document.createElement('div');
 
@@ -1564,6 +1541,8 @@
                         ${f.name.endsWith('.zip') ? `<button class="btn-icon" onclick="unzipFile('${f.relPath}')" title="Unzip"><i data-lucide="file-output" style="width:14px;"></i></button>` : ''}
 
                         ${!f.isDirectory && !f.name.endsWith('.zip') ? `<button class="btn-icon" onclick="zipFile('${f.relPath}')" title="Zip"><i data-lucide="archive" style="width:14px;"></i></button>` : ''}
+
+                        ${!f.isDirectory ? `<button class="btn-icon" onclick="downloadFile('${f.relPath}')" title="Download"><i data-lucide="download" style="width:14px;"></i></button>` : ''}
 
                         <button class="btn-icon" onclick="renameItem('${f.relPath}', '${f.name}')" title="Rename"><i data-lucide="edit-2" style="width:14px;"></i></button>
 
@@ -1605,55 +1584,71 @@
 
         }
 
+        function renderBreadcrumbs(dir) {
+            const breadcrumbs = $('current-dir-label');
+            breadcrumbs.replaceChildren();
+
+            const home = document.createElement('button');
+            home.type = 'button';
+            home.textContent = 'Home';
+            home.title = 'Kembali ke folder utama';
+            if (!dir) home.setAttribute('aria-current', 'location');
+            home.onclick = () => loadFiles('');
+            breadcrumbs.appendChild(home);
+
+            const segments = dir.split('/').filter(Boolean);
+            let path = '';
+
+            segments.forEach((segment, index) => {
+                const separator = document.createElement('span');
+                separator.className = 'breadcrumb-separator';
+                separator.textContent = '/';
+                separator.setAttribute('aria-hidden', 'true');
+                breadcrumbs.appendChild(separator);
+
+                path = path ? `${path}/${segment}` : segment;
+                const segmentPath = path;
+                const crumb = document.createElement('button');
+                crumb.type = 'button';
+                crumb.textContent = segment;
+                crumb.title = `Buka folder ${segmentPath}`;
+                if (index === segments.length - 1) {
+                    crumb.setAttribute('aria-current', 'location');
+                }
+                crumb.onclick = () => loadFiles(segmentPath);
+                breadcrumbs.appendChild(crumb);
+            });
+        }
+
         function showFileList() {
-            $('explorer-layout').classList.remove('editor-focused');
             $('tab-files').classList.remove('editor-focused');
         }
 
-
         async function openFile(file) {
+            const res = await fetch(`/api/files/read?file=${encodeURIComponent(file)}`);
+            if (!res.ok) {
+                const error = await res.json();
+                notify(error.error || 'Gagal membuka file');
+                return;
+            }
 
             currentFile = file;
-
             $('active-file').textContent = file;
-
-            $('download-btn').disabled = false;
-
-            const res = await fetch(`/api/files/read?file=${encodeURIComponent(file)}`);
-
-            const text = await res.text();
-
-            $('file-content').value = text;
-
-            $('file-content').disabled = false;
-            $('explorer-layout').classList.add('editor-focused');
+            $('file-content').value = await res.text();
             $('tab-files').classList.add('editor-focused');
-
         }
-
-
 
         async function saveFile() {
-
-            if (!currentFile) return notify('Pilih file terlebih dahulu');
+            if (!currentFile) return;
 
             const res = await fetch('/api/files/save', {
-
                 method: 'POST',
-
                 headers: { 'Content-Type': 'application/json' },
-
                 body: JSON.stringify({ file: currentFile, content: $('file-content').value })
-
             });
-
             const data = await res.json();
-
             notify(data.message || data.error);
-
         }
-
-
 
         async function createNewFile() {
 
@@ -1757,12 +1752,14 @@
 
 
 
-        function downloadCurrentFile() {
-
-            if (currentFile) window.location.href = `/api/files/download?file=${encodeURIComponent(currentFile)}`;
+        function downloadFile(file) {
+            window.location.href = `/api/files/download?file=${encodeURIComponent(file)}`;
 
         }
 
+        function downloadCurrentFile() {
+            if (currentFile) downloadFile(currentFile);
+        }
 
 
         async function zipFile(relPath) {

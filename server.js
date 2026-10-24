@@ -86,8 +86,16 @@ app.post('/api/control', requireAuth, (req, res) => {
 
 app.post('/api/command', requireAuth, async (req, res) => {
     try {
+        let cmd = req.body.command.trim();
+
+        // Jika perintah diawali 'say ', ubah otomatis jadi tellraw
+        if (cmd.toLowerCase().startsWith('say ')) {
+            const message = cmd.substring(4);
+            cmd = `tellraw @a ["",{"text":"[KawanSmp Console] ","color":"green","bold":true},{"text":"${message}","color":"white"}]`;
+        }
+
         const rcon = await Rcon.connect(RCON_CONFIG);
-        const response = await rcon.send(req.body.command);
+        const response = await rcon.send(cmd);
         await rcon.end();
         res.json({ output: response });
     } catch (e) {
