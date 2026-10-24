@@ -1,1527 +1,1819 @@
 <!DOCTYPE html>
-<html lang="id">
+
+<html lang="id" class="dark">
+
+
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#090d12">
-    <title>KawanSMP — Server Dashboard</title>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    <title>KawanSMP Control Center</title>
 
-        :root {
-            --bg: #090d12;
-            --surface: #10161e;
-            --panel: #111922;
-            --panel-hover: #17212c;
-            --border: #26313d;
-            --text: #e4ebf3;
-            --muted: #8291a3;
-            --green: #56e39f;
-            --green-dim: #142f27;
-            --blue: #79b8ff;
-            --orange: #ffbf69;
-            --red: #ff727b;
-            --mono: 'JetBrains Mono', monospace;
-            --sans: 'DM Sans', sans-serif;
-            --sidebar-width: 220px;
-        }
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23090d11'/%3E%3Cpath d='M14 19h36v10H14zm0 16h36v10H14z' fill='none' stroke='%2310b981' stroke-width='4' stroke-linejoin='round'/%3E%3Ccircle cx='21' cy='24' r='2' fill='%2310b981'/%3E%3Ccircle cx='21' cy='40' r='2' fill='%2310b981'/%3E%3C/svg%3E">
 
-        * {
-            box-sizing: border-box;
-        }
+        <script src="https://unpkg.com/lucide@latest"></script>
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background:
-                radial-gradient(ellipse at 75% 0%, #17251f 0%, transparent 38%),
-                var(--bg);
-            color: var(--text);
-            font-family: var(--sans);
-            font-size: 14px;
-        }
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-        button,
-        input,
-        textarea {
-            font: inherit;
-        }
 
-        button {
-            cursor: pointer;
-        }
 
-        button:focus-visible,
-        input:focus-visible,
-        textarea:focus-visible {
-            outline: 2px solid var(--green);
-            outline-offset: 2px;
-        }
-
-        button:disabled {
-            opacity: .5;
-            cursor: not-allowed;
-        }
-
-        .app {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* MAC-STYLE TITLE BAR */
-        .titlebar {
-            height: 48px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            background: rgba(12, 17, 24, .94);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .window-controls {
-            display: flex;
-            gap: 7px;
-        }
-
-        .window-dot {
-            width: 11px;
-            height: 11px;
-            border-radius: 50%;
-        }
-
-        .dot-red {
-            background: #ff5f57;
-        }
-
-        .dot-yellow {
-            background: #febc2e;
-        }
-
-        .dot-green {
-            background: #28c840;
-        }
-
-        .window-title {
-            color: var(--muted);
-            font-family: var(--mono);
-            font-size: 11px;
-        }
-
-        .top-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 11px;
-            color: var(--muted);
-        }
-
-        .live-dot {
-            display: inline-block;
-            width: 7px;
-            height: 7px;
-            background: var(--orange);
-            border-radius: 50%;
-            box-shadow: 0 0 9px currentColor;
-        }
-
-        .live-dot.connected {
-            background: var(--green);
-        }
-
-        /* LAYOUT */
-        .layout {
-            flex: 1;
-            display: grid;
-            grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
-            min-height: calc(100vh - 48px);
-        }
-
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            padding: 22px 14px 14px;
-            background: rgba(12, 17, 24, .76);
-            border-right: 1px solid var(--border);
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 11px;
-            padding: 0 9px 25px;
-        }
-
-        .brand-icon {
-            display: grid;
-            place-items: center;
-            width: 39px;
-            height: 39px;
-            border: 1px solid #35634e;
-            border-radius: 12px;
-            color: var(--green);
-            background: var(--green-dim);
-            font-family: var(--mono);
-            font-size: 19px;
-        }
-
-        .brand h1 {
-            margin: 0 0 3px;
-            font-size: 15px;
-            letter-spacing: -.4px;
-        }
-
-        .brand p {
-            margin: 0;
-            color: var(--muted);
-            font-size: 11px;
-        }
-
-        .nav-label {
-            padding: 0 10px;
-            margin: 13px 0 8px;
-            color: #647387;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1.4px;
-        }
-
-        .nav-btn {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 11px;
-            padding: 12px 11px;
-            margin-bottom: 4px;
-            border: 1px solid transparent;
-            border-radius: 9px;
-            color: var(--muted);
-            background: transparent;
-            text-align: left;
-            transition: .18s ease;
-        }
-
-        .nav-btn:hover {
-            color: var(--text);
-            background: var(--panel-hover);
-        }
-
-        .nav-btn.active {
-            color: var(--green);
-            background: var(--green-dim);
-            border-color: #254b3c;
-        }
-
-        .nav-icon {
-            width: 20px;
-            text-align: center;
-            font-family: var(--mono);
-            font-size: 15px;
-        }
-
-        .sidebar-bottom {
-            margin-top: auto;
-            padding-top: 20px;
-        }
-
-        .server-mini {
-            padding: 13px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            background: var(--surface);
-        }
-
-        .mini-label {
-            color: var(--muted);
-            font-size: 10px;
-            letter-spacing: .8px;
-        }
-
-        .mini-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 10px;
-            font-weight: 600;
-            font-size: 12px;
-        }
-
-        .credit {
-            padding: 17px 5px 0;
-            color: #657487;
-            font-family: var(--mono);
-            font-size: 10px;
-            text-align: center;
-        }
-
-        .credit strong {
-            color: var(--green);
-        }
-
-        /* MAIN CONTENT */
-        .content {
-            min-width: 0;
-            padding: 27px;
-        }
-
-        .page-heading {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 24px;
-        }
-
-        .eyebrow {
-            margin-bottom: 8px;
-            color: var(--green);
-            font-family: var(--mono);
-            font-size: 11px;
-        }
-
-        .page-heading h2 {
-            margin: 0;
-            font-size: clamp(22px, 3vw, 29px);
-            letter-spacing: -1px;
-        }
-
-        .page-heading p {
-            margin: 8px 0 0;
-            color: var(--muted);
-            line-height: 1.6;
-        }
-
-        .server-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 9px 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--surface);
-            color: var(--muted);
-            font-size: 11px;
-        }
-
-        .server-badge strong {
-            color: var(--text);
-        }
-
-        /* SERVER CONTROLS */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 13px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            min-width: 0;
-            padding: 17px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: linear-gradient(145deg, #141d27, #0f151d);
-        }
-
-        .stat-label {
-            color: var(--muted);
-            font-size: 12px;
-        }
-
-        .stat-value {
-            margin-top: 13px;
-            font-family: var(--mono);
-            font-size: clamp(16px, 2vw, 22px);
-            font-weight: 600;
-        }
-
-        .stat-note {
-            margin-top: 7px;
-            color: var(--muted);
-            font-size: 10px;
-        }
-
-        .green {
-            color: var(--green);
-        }
-
-        .orange {
-            color: var(--orange);
-        }
-
-        .red {
-            color: var(--red);
-        }
-
-        .control-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 22px;
-            padding: 15px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: var(--surface);
-        }
-
-        .control-info strong {
-            font-size: 13px;
-        }
-
-        .control-info p {
-            margin: 5px 0 0;
-            color: var(--muted);
-            font-size: 11px;
-        }
-
-        .control-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-            min-height: 36px;
-            padding: 9px 13px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: #19232e;
-            color: var(--text);
-            font-size: 12px;
-            font-weight: 600;
-            transition: .18s ease;
-        }
-
-        .btn:hover {
-            filter: brightness(1.18);
-        }
-
-        .btn-start {
-            background: #174a35;
-            border-color: #286e4d;
-            color: #8cf5bc;
-        }
-
-        .btn-restart {
-            background: #47351d;
-            border-color: #72532a;
-            color: #ffd08a;
-        }
-
-        .btn-stop {
-            background: #492329;
-            border-color: #76313b;
-            color: #ff9ba2;
-        }
-
-        .btn-save {
-            background: #17394e;
-            border-color: #275b78;
-            color: #9bd6ff;
-        }
-
-        /* PANELS */
-        .panel {
-            min-width: 0;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: var(--surface);
-        }
-
-        .panel+.panel {
-            margin-top: 18px;
-        }
-
-        .panel-head {
-            min-height: 49px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .panel-title {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            font-weight: 600;
-            font-size: 12px;
-        }
-
-        .panel-subtitle {
-            color: var(--muted);
-            font-family: var(--mono);
-            font-size: 10px;
-        }
-
-        .terminal-dots {
-            display: flex;
-            gap: 5px;
-        }
-
-        .terminal-dots span {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .terminal-body {
-            height: 350px;
-            overflow: auto;
-            padding: 17px;
-            background:
-                radial-gradient(ellipse at 0 0, #10231d, transparent 45%),
-                #080d12;
-            color: #a8eac6;
-            font-family: var(--mono);
-            font-size: 12px;
-            line-height: 1.85;
-            white-space: pre-wrap;
-            overflow-wrap: anywhere;
-        }
-
-        .terminal-line {
-            color: #a8eac6;
-        }
-
-        .terminal-welcome {
-            color: #8b9baa;
-        }
-
-        .command-bar {
-            display: flex;
-            gap: 9px;
-            padding: 12px;
-            border-top: 1px solid var(--border);
-        }
-
-        .prompt {
-            display: flex;
-            align-items: center;
-            padding-left: 5px;
-            color: var(--green);
-            font-family: var(--mono);
-        }
-
-        .command-bar input {
-            flex: 1;
-            min-width: 0;
-            padding: 10px 0;
-            border: none;
-            outline: none;
-            background: transparent;
-            color: var(--text);
-            font-family: var(--mono);
-            font-size: 12px;
-        }
-
-        .command-bar input::placeholder {
-            color: #647387;
-        }
-
-        .hint {
-            padding: 0 15px 13px;
-            color: #718094;
-            font-size: 10px;
-        }
-
-        /* FILE MANAGER */
-        .file-layout {
-            display: grid;
-            grid-template-columns: minmax(180px, 250px) minmax(0, 1fr);
-            gap: 14px;
-            min-height: 450px;
-        }
-
-        .file-sidebar,
-        .editor-panel {
-            min-width: 0;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: var(--surface);
-        }
-
-        .file-toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            padding: 13px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .file-toolbar strong {
-            font-size: 12px;
-        }
-
-        .file-tree {
-            padding: 9px;
-            max-height: 570px;
-            overflow: auto;
-        }
-
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            width: 100%;
-            padding: 10px 9px;
-            margin-bottom: 3px;
-            border: 1px solid transparent;
-            border-radius: 7px;
-            background: transparent;
-            color: #b7c4d3;
-            text-align: left;
-            font-size: 12px;
-            overflow-wrap: anywhere;
-        }
-
-        .file-item:hover {
-            background: var(--panel-hover);
-        }
-
-        .file-item.active {
-            background: #173328;
-            border-color: #28553f;
-            color: var(--green);
-        }
-
-        .file-icon {
-            flex-shrink: 0;
-        }
-
-        .editor-panel {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .editor-toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            flex-wrap: wrap;
-            padding: 12px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .active-file {
-            min-width: 0;
-            overflow-wrap: anywhere;
-            color: var(--muted);
-            font-family: var(--mono);
-            font-size: 11px;
-        }
-
-        .editor {
-            flex: 1;
-            width: 100%;
-            min-height: 390px;
-            padding: 16px;
-            resize: vertical;
-            border: none;
-            outline: none;
-            background: #0b1118;
-            color: #c9e6d6;
-            font-family: var(--mono);
-            font-size: 12px;
-            line-height: 1.8;
-            tab-size: 4;
-        }
-
-        .editor:focus {
-            outline: none;
-        }
-
-        .editor-footer {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            padding: 10px 13px;
-            border-top: 1px solid var(--border);
-            color: var(--muted);
-            font-family: var(--mono);
-            font-size: 10px;
-        }
-
-        /* FOOTER */
-        .main-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            flex-wrap: wrap;
-            padding: 20px 0 0;
-            color: #657487;
-            font-size: 11px;
-        }
-
-        .main-footer strong {
-            color: var(--green);
-        }
-
-        .toast {
-            position: fixed;
-            right: 20px;
-            bottom: 20px;
-            z-index: 10;
-            max-width: calc(100vw - 40px);
-            padding: 13px 17px;
-            border: 1px solid #355b49;
-            border-radius: 9px;
-            background: #14251e;
-            color: #b8f5d1;
-            box-shadow: 0 12px 35px #0006;
-            overflow-wrap: anywhere;
-        }
-
-        .toast.error {
-            border-color: #743740;
-            background: #30181e;
-            color: #ffb4ba;
-        }
-
-        [hidden] {
-            display: none !important;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 900px) {
             :root {
-                --sidebar-width: 185px;
+
+                --bg-dark: #090d11;
+
+                --surface: #111822;
+
+                --surface-hover: #1b2432;
+
+                --border: #222f3e;
+
+                --border-light: #2e3e52;
+
+                --text-main: #f1f5f9;
+
+                --text-muted: #8493a8;
+
+                --accent-green: #10b981;
+
+                --accent-green-bg: rgba(16, 185, 129, 0.12);
+
+                --accent-blue: #3b82f6;
+
+                --accent-amber: #f59e0b;
+
+                --accent-red: #ef4444;
+
+                --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+
+                --font-mono: 'JetBrains Mono', monospace;
+
             }
 
-            .content {
-                padding: 20px;
+
+
+            * {
+
+                box-sizing: border-box;
+
+                margin: 0;
+
+                padding: 0;
+
             }
 
-            .stats {
-                gap: 9px;
+
+
+            body {
+
+                background-color: var(--bg-dark);
+
+                color: var(--text-main);
+
+                font-family: var(--font-sans);
+
+                font-size: 13px;
+
+                -webkit-font-smoothing: antialiased;
+
             }
 
-            .stat-card {
-                padding: 13px;
+
+
+            button,
+
+            input,
+
+            textarea {
+
+                font-family: inherit;
+
+                font-size: inherit;
+
+                color: inherit;
+
             }
 
-            .file-layout {
-                grid-template-columns: 190px minmax(0, 1fr);
-            }
-        }
 
-        @media (max-width: 650px) {
-            .titlebar {
-                height: 43px;
-                padding: 0 13px;
-            }
 
-            .window-title {
-                font-size: 10px;
+            button {
+
+                cursor: pointer;
+
+                border: none;
+
+                background: none;
+
             }
 
-            .top-right {
-                font-size: 10px;
+
+
+            [hidden] {
+
+                display: none !important;
+
             }
 
-            .layout {
+
+
+            .app-container {
+
                 display: flex;
+
                 flex-direction: column;
-                min-height: calc(100vh - 43px);
-                padding-bottom: 67px;
+
+                height: 100vh;
+
             }
+
+
+
+            /* HEADER */
+
+            .top-header {
+
+                height: 52px;
+
+                background: var(--surface);
+
+                border-bottom: 1px solid var(--border);
+
+                display: flex;
+
+                align-items: center;
+
+                justify-content: space-between;
+
+                padding: 0 18px;
+
+            }
+
+
+
+            .brand-logo {
+
+                display: flex;
+
+                align-items: center;
+
+                gap: 10px;
+
+                font-weight: 700;
+
+                font-size: 14px;
+
+                letter-spacing: -0.3px;
+
+            }
+
+
+
+            .brand-logo i {
+
+                color: var(--accent-green);
+
+            }
+
+
+
+            /* LOGIN SCREEN */
+
+            .login-backdrop {
+
+                position: fixed;
+
+                inset: 0;
+
+                background: var(--bg-dark);
+
+                z-index: 999;
+
+                display: flex;
+
+                align-items: center;
+
+                justify-content: center;
+
+            }
+
+
+
+            .login-box {
+
+                width: 340px;
+
+                background: var(--surface);
+
+                border: 1px solid var(--border);
+
+                border-radius: 12px;
+
+                padding: 28px;
+
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+
+            }
+
+
+
+            .login-box h2 {
+
+                font-size: 18px;
+
+                font-weight: 700;
+
+                margin-bottom: 6px;
+
+            }
+
+
+
+            .login-box p {
+
+                color: var(--text-muted);
+
+                font-size: 12px;
+
+                margin-bottom: 20px;
+
+            }
+
+
+
+            .form-field {
+
+                margin-bottom: 14px;
+
+            }
+
+
+
+            .form-field label {
+
+                display: block;
+
+                font-size: 11px;
+
+                color: var(--text-muted);
+
+                margin-bottom: 5px;
+
+                font-weight: 600;
+
+            }
+
+
+
+            .form-field input {
+
+                width: 100%;
+
+                background: var(--bg-dark);
+
+                border: 1px solid var(--border);
+
+                border-radius: 6px;
+
+                padding: 9px 12px;
+
+                font-family: var(--font-mono);
+
+                outline: none;
+
+            }
+
+
+
+            .form-field input:focus {
+
+                border-color: var(--accent-green);
+
+            }
+
+
+
+            /* LAYOUT */
+
+            .main-wrapper {
+
+                flex: 1;
+
+                display: grid;
+
+                grid-template-columns: 210px 1fr;
+
+                overflow: hidden;
+
+            }
+
+
 
             .sidebar {
-                position: fixed;
-                z-index: 5;
-                right: 0;
-                bottom: 0;
-                left: 0;
-                height: 64px;
-                padding: 5px 9px;
-                border-top: 1px solid var(--border);
-                border-right: none;
-                background: rgba(12, 17, 24, .97);
-                backdrop-filter: blur(18px);
+
+                background: var(--surface);
+
+                border-right: 1px solid var(--border);
+
+                padding: 16px 12px;
+
+                display: flex;
+
+                flex-direction: column;
+
+                gap: 4px;
+
             }
 
-            .brand,
-            .nav-label,
-            .sidebar-bottom {
+
+
+            .nav-link {
+
+                display: flex;
+
+                align-items: center;
+
+                gap: 10px;
+
+                padding: 9px 12px;
+
+                border-radius: 6px;
+
+                color: var(--text-muted);
+
+                font-weight: 500;
+
+                transition: all 0.15s;
+
+            }
+
+
+
+            .nav-link:hover {
+
+                background: var(--surface-hover);
+
+                color: var(--text-main);
+
+            }
+
+
+
+            .nav-link.active {
+
+                background: var(--accent-green-bg);
+
+                color: var(--accent-green);
+
+                font-weight: 600;
+
+            }
+
+
+
+            .main-content {
+
+                padding: 20px 24px;
+
+                overflow-y: auto;
+
+                background: var(--bg-dark);
+
+            }
+
+
+
+            /* BUTTONS */
+
+            .btn {
+
+                display: inline-flex;
+
+                align-items: center;
+
+                justify-content: center;
+
+                gap: 6px;
+
+                padding: 7px 13px;
+
+                border-radius: 6px;
+
+                font-weight: 600;
+
+                font-size: 12px;
+
+                border: 1px solid var(--border);
+
+                background: var(--surface);
+
+                transition: all 0.15s;
+
+            }
+
+
+
+            .btn:hover {
+
+                background: var(--surface-hover);
+
+                border-color: var(--border-light);
+
+            }
+
+
+
+            .btn-primary {
+
+                background: var(--accent-green);
+
+                color: #000;
+
+                border: none;
+
+            }
+
+
+
+            .btn-primary:hover {
+
+                opacity: 0.9;
+
+            }
+
+
+
+            .btn-danger {
+
+                background: rgba(239, 68, 68, 0.15);
+
+                color: var(--accent-red);
+
+                border-color: rgba(239, 68, 68, 0.3);
+
+            }
+
+
+
+            .btn-danger:hover {
+
+                background: var(--accent-red);
+
+                color: #fff;
+
+            }
+
+
+
+            .btn-icon {
+
+                padding: 6px;
+
+                border-radius: 4px;
+
+                color: var(--text-muted);
+
+            }
+
+
+
+            .btn-icon:hover {
+
+                color: var(--text-main);
+
+                background: var(--surface-hover);
+
+            }
+
+
+
+            /* TERMINAL */
+
+            .console-container {
+
+                display: flex;
+
+                flex-direction: column;
+
+                height: calc(100vh - 120px);
+
+                border: 1px solid var(--border);
+
+                border-radius: 8px;
+
+                overflow: hidden;
+
+                background: #05080c;
+
+            }
+
+
+
+            .console-header {
+
+                padding: 10px 14px;
+
+                background: var(--surface);
+
+                border-bottom: 1px solid var(--border);
+
+                display: flex;
+
+                align-items: center;
+
+                justify-content: space-between;
+
+            }
+
+
+
+            .console-logs {
+
+                flex: 1;
+
+                padding: 14px;
+
+                font-family: var(--font-mono);
+
+                font-size: 12px;
+
+                color: #34d399;
+
+                overflow-y: auto;
+
+                white-space: pre-wrap;
+
+                line-height: 1.6;
+
+            }
+
+
+
+            .console-input-bar {
+
+                display: flex;
+
+                border-top: 1px solid var(--border);
+
+                background: var(--surface);
+
+            }
+
+
+
+            .console-input-bar input {
+
+                flex: 1;
+
+                background: transparent;
+
+                border: none;
+
+                padding: 12px 14px;
+
+                font-family: var(--font-mono);
+
+                outline: none;
+
+            }
+
+
+
+            /* FILE EXPLORER */
+
+            .explorer-layout {
+
+                display: grid;
+
+                grid-template-columns: 320px 1fr;
+
+                gap: 16px;
+
+                height: calc(100vh - 130px);
+
+            }
+
+
+
+            .explorer-pane {
+
+                background: var(--surface);
+
+                border: 1px solid var(--border);
+
+                border-radius: 8px;
+
+                display: flex;
+
+                flex-direction: column;
+
+                overflow: hidden;
+
+            }
+
+
+
+            .pane-toolbar {
+
+                padding: 10px 12px;
+
+                border-bottom: 1px solid var(--border);
+
+                display: flex;
+
+                align-items: center;
+
+                justify-content: space-between;
+
+                gap: 6px;
+
+            }
+
+
+
+            .file-list {
+
+                flex: 1;
+
+                overflow-y: auto;
+
+                padding: 6px;
+
+            }
+
+
+
+            .file-row {
+
+                display: flex;
+
+                align-items: center;
+
+                justify-content: space-between;
+
+                padding: 7px 10px;
+
+                border-radius: 6px;
+
+                cursor: pointer;
+
+                user-select: none;
+
+                font-size: 12px;
+
+                margin-bottom: 2px;
+
+            }
+
+
+
+            .file-row:hover {
+
+                background: var(--surface-hover);
+
+            }
+
+
+
+            .file-row.active {
+
+                background: var(--accent-green-bg);
+
+                color: var(--accent-green);
+
+            }
+
+
+
+            .file-info {
+
+                display: flex;
+
+                align-items: center;
+
+                gap: 8px;
+
+                overflow: hidden;
+
+                text-overflow: ellipsis;
+
+                white-space: nowrap;
+
+            }
+
+
+
+            .file-actions {
+                display: flex;
+                opacity: 0;
+                transition: opacity 0.15s;
+            }
+
+
+
+            .file-row:hover .file-actions {
+
+                opacity: 1;
+
+            }
+
+
+
+            .editor-textarea {
+
+                flex: 1;
+
+                background: #05080c;
+
+                border: none;
+
+                padding: 16px;
+
+                font-family: var(--font-mono);
+
+                font-size: 12px;
+
+                color: #e2e8f0;
+
+                resize: none;
+
+                outline: none;
+
+                line-height: 1.6;
+
+            }
+
+
+
+            .drop-highlight {
+
+                border: 2px dashed var(--accent-green) !important;
+
+                background: var(--accent-green-bg) !important;
+
+            }
+
+
+
+            .toast {
+
+                position: fixed;
+
+                bottom: 20px;
+
+                right: 20px;
+
+                background: var(--surface);
+
+                border: 1px solid var(--border);
+
+                padding: 10px 16px;
+
+                border-radius: 6px;
+
+                font-weight: 500;
+
+                font-size: 12px;
+
+                z-index: 1000;
+
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+
+                display: flex;
+
+                align-items: center;
+
+                gap: 8px;
+
+            }
+
+
+            /* Responsive navigation and file selection */
+            .credit {
+                margin-left: auto;
+                margin-right: 14px;
+                color: var(--text-muted);
+                font: 10px var(--font-mono);
+                letter-spacing: 1.5px;
+            }
+
+            .mobile-nav {
                 display: none;
             }
 
-            .nav-list {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 8px;
-                height: 100%;
+            .file-row.active {
+                background: var(--accent-green-bg);
+                color: var(--accent-green);
+                outline: 1px solid rgba(16, 185, 129, .25);
             }
 
-            .nav-btn {
-                justify-content: center;
-                gap: 9px;
-                margin: 0;
-                padding: 8px;
-                font-size: 12px;
+            .file-row.active .file-actions {
+                opacity: 1;
             }
 
-            .content {
-                padding: 20px 13px;
+            .file-row {
+                min-height: 38px;
             }
 
-            .page-heading {
-                margin-bottom: 18px;
-            }
-
-            .page-heading h2 {
-                font-size: 24px;
-            }
-
-            .stats {
-                grid-template-columns: 1fr;
-                gap: 9px;
-            }
-
-            .stat-card {
-                display: grid;
-                grid-template-columns: 1fr auto;
+            .file-actions {
                 align-items: center;
-                gap: 5px 10px;
-                padding: 13px;
+                gap: 2px;
             }
 
-            .stat-label {
-                grid-column: 1;
+            .file-actions button {
+                flex-shrink: 0;
             }
 
-            .stat-value {
-                grid-column: 2;
-                grid-row: 1 / span 2;
-                margin: 0;
-                font-size: 17px;
+            .main-content {
+                min-width: 0;
             }
 
-            .stat-note {
-                grid-column: 1;
-                margin-top: 0;
+            .explorer-layout {
+                min-width: 0;
             }
 
-            .control-bar {
-                align-items: flex-start;
+            .explorer-pane {
+                min-width: 0;
             }
 
-            .control-actions {
-                width: 100%;
+            .file-info span {
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
-            .control-actions .btn {
-                flex: 1;
-                padding: 9px 7px;
+            @media (max-width: 760px) {
+                .app-container {
+                    min-height: 100dvh;
+                    height: 100dvh;
+                }
+
+                .top-header {
+                    height: 58px;
+                    flex-shrink: 0;
+                    padding: 0 14px;
+                }
+
+                .credit {
+                    margin-right: 8px;
+                    font-size: 9px;
+                    letter-spacing: .8px;
+                }
+
+                .main-wrapper {
+                    display: flex;
+                    flex: 1;
+                    min-height: 0;
+                    overflow: hidden;
+                }
+
+                .sidebar {
+                    display: none;
+                }
+
+                .mobile-nav {
+                    display: flex;
+                    position: fixed;
+                    z-index: 100;
+                    left: 12px;
+                    right: 12px;
+                    bottom: max(10px, env(safe-area-inset-bottom));
+                    min-height: 64px;
+                    padding: 7px;
+                    gap: 8px;
+                    background: rgba(17, 24, 34, .96);
+                    backdrop-filter: blur(18px);
+                    border: 1px solid var(--border-light);
+                    border-radius: 16px;
+                    box-shadow: 0 12px 35px rgba(0, 0, 0, .38);
+                }
+
+                .mobile-nav .nav-link {
+                    flex: 1;
+                    justify-content: center;
+                    flex-direction: column;
+                    gap: 4px;
+                    padding: 7px 8px;
+                    font-size: 10px;
+                    border-radius: 10px;
+                }
+
+                .mobile-nav .nav-link svg {
+                    width: 19px;
+                    height: 19px;
+                }
+
+                .main-content {
+                    width: 100%;
+                    padding: 16px 12px 94px;
+                    overflow-y: auto;
+                }
+
+                .console-container {
+                    height: min(64dvh, 620px);
+                    min-height: 300px;
+                }
+
+                #tab-console>div:first-child {
+                    align-items: flex-start !important;
+                    flex-direction: column;
+                    gap: 12px;
+                }
+
+                #tab-console>div:first-child>div:last-child {
+                    width: 100%;
+                    display: grid !important;
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                    gap: 6px !important;
+                }
+
+                #tab-console>div:first-child .btn {
+                    padding: 9px 6px;
+                    font-size: 11px;
+                }
+
+                .explorer-layout {
+                    display: flex;
+                    flex-direction: column;
+                    height: auto;
+                    gap: 12px;
+                }
+
+                .explorer-pane {
+                    min-height: 240px;
+                }
+
+                #drop-zone {
+                    min-height: 300px;
+                }
+
+                .explorer-pane:not(#drop-zone) {
+                    min-height: 320px;
+                }
+
+                #tab-files>div:first-child {
+                    align-items: flex-start !important;
+                    flex-direction: column;
+                    gap: 12px;
+                }
+
+                #tab-files>div:first-child>div:last-child {
+                    display: flex;
+                    flex-wrap: wrap;
+                    width: 100%;
+                }
+
+                #tab-files>div:first-child .btn {
+                    flex: 1;
+                    padding: 9px 8px;
+                }
+
+                .pane-toolbar {
+                    flex-wrap: wrap;
+                }
+
+                #active-file {
+                    max-width: 48%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                .editor-textarea {
+                    min-height: 240px;
+                }
+
+                .toast {
+                    left: 14px;
+                    right: 14px;
+                    bottom: 88px;
+                    justify-content: center;
+                }
             }
 
-            .terminal-body {
-                height: 310px;
-                padding: 12px;
-                font-size: 11px;
-            }
+            @media (max-width: 390px) {
+                .brand-logo {
+                    font-size: 12px;
+                    gap: 7px;
+                }
 
-            .command-bar {
-                gap: 6px;
-                padding: 9px;
-            }
+                #logout-btn {
+                    padding: 7px 9px;
+                }
 
-            .command-bar .btn {
-                padding: 8px 10px;
+                .main-content {
+                    padding-left: 9px;
+                    padding-right: 9px;
+                }
             }
+        </style>
 
-            .file-layout {
-                display: flex;
-                flex-direction: column;
-                min-height: 0;
-            }
-
-            .file-sidebar {
-                max-height: 225px;
-            }
-
-            .file-tree {
-                max-height: 160px;
-            }
-
-            .editor-panel {
-                min-height: 380px;
-            }
-
-            .editor {
-                min-height: 320px;
-            }
-
-            .main-footer {
-                padding-bottom: 5px;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-
-            *,
-            *::before,
-            *::after {
-                scroll-behavior: auto !important;
-                transition: none !important;
-            }
-        }
-    </style>
 </head>
 
+
+
 <body>
-    <div class="app">
 
-        <header class="titlebar">
-            <div class="window-controls" aria-label="Dekorasi jendela">
-                <span class="window-dot dot-red"></span>
-                <span class="window-dot dot-yellow"></span>
-                <span class="window-dot dot-green"></span>
+
+
+    <!-- LOGIN -->
+
+    <div id="login-screen" class="login-backdrop">
+
+        <div class="login-box">
+
+            <div class="brand-logo" style="margin-bottom: 12px;">
+
+                <i data-lucide="server"></i> KawanSMP Control
+
             </div>
 
-            <div class="window-title">kawansmp — server console</div>
+            <h2>Masuk ke Panel</h2>
 
-            <div class="top-right">
-                <span class="live-dot" id="ws-dot"></span>
-                <span id="ws-label">Menghubungkan</span>
-            </div>
-        </header>
+            <p>Masukkan otentikasi administrator</p>
 
-        <div class="layout">
+            <form id="login-form">
 
-            <aside class="sidebar">
-                <div class="brand">
-                    <div class="brand-icon">&gt;_</div>
-                    <div>
-                        <h1>KawanSMP</h1>
-                        <p>Server Management</p>
-                    </div>
+                <div class="form-field">
+
+                    <label>Username</label>
+
+                    <input type="text" id="login-user" required autocomplete="username">
+
                 </div>
 
-                <div class="nav-label">WORKSPACE</div>
+                <div class="form-field">
 
-                <nav class="nav-list" aria-label="Navigasi dashboard">
-                    <button class="nav-btn active" data-tab="console" aria-current="page">
-                        <span class="nav-icon">⌘</span>
-                        Terminal
-                    </button>
+                    <label>Password</label>
 
-                    <button class="nav-btn" data-tab="files">
-                        <span class="nav-icon">▤</span>
-                        File Manager
-                    </button>
-                </nav>
+                    <input type="password" id="login-pass" required autocomplete="current-password">
 
-                <div class="sidebar-bottom">
-                    <div class="server-mini">
-                        <div class="mini-label">CONNECTION</div>
-                        <div class="mini-status">
-                            <span class="live-dot" id="side-dot"></span>
-                            <span id="side-status">Menghubungkan...</span>
-                        </div>
-                    </div>
-
-                    <div class="credit">DESIGNED BY <strong>RAFA</strong></div>
                 </div>
-            </aside>
 
-            <main class="content">
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
 
-                <!-- CONSOLE VIEW -->
-                <section id="tab-console">
-                    <div class="page-heading">
-                        <div>
-                            <div class="eyebrow">~/dashboard/overview</div>
-                            <h2>Server Console<span class="green">.</span></h2>
-                            <p>Kelola server dan pantau log secara langsung.</p>
-                        </div>
+                    <i data-lucide="log-in" style="width: 14px;"></i> Masuk
 
-                        <div class="server-badge">
-                            <span class="live-dot" id="badge-dot"></span>
-                            <strong>KawanSMP</strong>
-                            <span>·</span>
-                            <span id="badge-status">Checking</span>
-                        </div>
-                    </div>
+                </button>
 
-                    <div class="stats">
-                        <div class="stat-card">
-                            <div class="stat-label">Server Status</div>
-                            <div class="stat-value orange" id="server-status">UNKNOWN</div>
-                            <div class="stat-note">Status kontrol terakhir</div>
-                        </div>
+            </form>
 
-                        <div class="stat-card">
-                            <div class="stat-label">Console Connection</div>
-                            <div class="stat-value orange" id="connection-status">CONNECTING</div>
-                            <div class="stat-note">WebSocket log stream</div>
-                        </div>
-
-                        <div class="stat-card">
-                            <div class="stat-label">Console Output</div>
-                            <div class="stat-value" id="line-count">0 lines</div>
-                            <div class="stat-note">Jumlah baris yang ditampilkan</div>
-                        </div>
-                    </div>
-
-                    <div class="control-bar">
-                        <div class="control-info">
-                            <strong>Power Controls</strong>
-                            <p>Kelola proses server dari dashboard.</p>
-                        </div>
-
-                        <div class="control-actions">
-                            <button class="btn btn-start" data-action="start">▶ Start</button>
-                            <button class="btn btn-restart" data-action="restart">↻ Restart</button>
-                            <button class="btn btn-stop" data-action="stop">■ Stop</button>
-                        </div>
-                    </div>
-
-                    <section class="panel">
-                        <div class="panel-head">
-                            <div class="panel-title">
-                                <span class="terminal-dots">
-                                    <span class="dot-red"></span>
-                                    <span class="dot-yellow"></span>
-                                    <span class="dot-green"></span>
-                                </span>
-                                Terminal Output
-                            </div>
-                            <span class="panel-subtitle" id="terminal-state">INITIALIZING</span>
-                        </div>
-
-                        <div id="terminal" class="terminal-body" role="log" aria-live="polite"
-                            aria-relevant="additions">
-                            <span class="terminal-welcome">KawanSMP Server Console
-                                Menunggu koneksi log stream...
-                                ────────────────────────────────────────
-                            </span>
-                        </div>
-
-                        <form class="command-bar" id="command-form">
-                            <span class="prompt">&gt;_</span>
-                            <input id="cmd" type="text" autocomplete="off" placeholder="Masukkan RCON command..."
-                                aria-label="RCON command">
-                            <button class="btn btn-save" type="submit">Kirim ↗</button>
-                        </form>
-
-                        <div class="hint">
-                            Tekan Enter untuk mengirim command ke server.
-                        </div>
-                    </section>
-
-                    <footer class="main-footer">
-                        <span>KawanSMP Dashboard <strong>v2.0</strong></span>
-                        <span>Crafted with care by <strong>Rafa</strong> © <span id="year"></span></span>
-                    </footer>
-                </section>
-
-                <!-- FILE MANAGER VIEW -->
-                <section id="tab-files" hidden>
-                    <div class="page-heading">
-                        <div>
-                            <div class="eyebrow">~/dashboard/files</div>
-                            <h2>File Manager<span class="green">.</span></h2>
-                            <p>Jelajahi, edit, dan simpan file server.</p>
-                        </div>
-
-                        <div class="server-badge">
-                            <span class="live-dot connected"></span>
-                            Workspace Editor
-                        </div>
-                    </div>
-
-                    <div class="file-layout">
-                        <section class="file-sidebar">
-                            <div class="file-toolbar">
-                                <strong>Explorer</strong>
-                                <button class="btn" id="refresh-files" type="button"
-                                    aria-label="Muat ulang file">↻</button>
-                            </div>
-                            <div class="file-tree" id="tree">
-                                <div class="panel-subtitle">Memuat file...</div>
-                            </div>
-                        </section>
-
-                        <section class="editor-panel">
-                            <div class="editor-toolbar">
-                                <span class="active-file" id="active-file">Belum ada file dipilih</span>
-                                <button class="btn btn-save" id="save-file" type="button">
-                                    ♧ Simpan
-                                </button>
-                            </div>
-
-                            <textarea class="editor" id="file-content" spellcheck="false" aria-label="Isi file"
-                                placeholder="// Pilih file dari Explorer untuk mulai mengedit..." disabled></textarea>
-
-                            <div class="editor-footer">
-                                <span id="editor-language">PLAIN TEXT</span>
-                                <span id="editor-state">No file selected</span>
-                            </div>
-                        </section>
-                    </div>
-
-                    <footer class="main-footer">
-                        <span>File Explorer <strong>·</strong> KawanSMP</span>
-                        <span>BY <strong>Rafa</strong> © <span class="year-copy"></span></span>
-                    </footer>
-                </section>
-
-            </main>
         </div>
+
     </div>
 
-    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+
+    <!-- MAIN APP -->
+
+    <div class="app-container">
+
+        <header class="top-header">
+
+            <div class="brand-logo">
+
+                <i data-lucide="terminal"></i> KawanSMP Panel
+
+            </div>
+
+            <span class="credit">BY RAFA</span>
+            <button class="btn btn-danger" id="logout-btn">
+
+                <i data-lucide="power" style="width: 14px;"></i> Logout
+
+            </button>
+
+        </header>
+
+
+
+        <div class="main-wrapper">
+            <aside class="sidebar">
+
+                <button class="nav-link active" data-tab="console">
+
+                    <i data-lucide="terminal" style="width: 16px;"></i> Terminal
+
+                </button>
+
+                <button class="nav-link" data-tab="files">
+
+                    <i data-lucide="folder-tree" style="width: 16px;"></i> File Manager
+
+                </button>
+
+            </aside>
+
+
+
+            <main class="main-content">
+
+                <!-- CONSOLE -->
+
+                <section id="tab-console">
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+
+                        <div>
+
+                            <h2 style="font-size: 18px; font-weight: 700;">Live Console</h2>
+
+                            <span style="color: var(--text-muted); font-size: 12px;">Pantau log server dan kirim peritah
+
+                                RCON</span>
+
+                        </div>
+
+                        <div style="display:flex; gap:8px;">
+
+                            <button class="btn" onclick="control('start')"><i data-lucide="play"
+                                    style="width: 14px; color:var(--accent-green);"></i> Start</button>
+
+                            <button class="btn" onclick="control('restart')"><i data-lucide="rotate-cw"
+                                    style="width: 14px; color:var(--accent-amber);"></i> Restart</button>
+
+                            <button class="btn btn-danger" onclick="control('stop')"><i data-lucide="square"
+                                    style="width: 14px;"></i> Stop</button>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="console-container">
+
+                        <div class="console-header">
+
+                            <span
+                                style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">latest.log</span>
+
+                            <i data-lucide="activity" style="width: 14px; color: var(--accent-green);"></i>
+
+                        </div>
+
+                        <div id="terminal" class="console-logs"></div>
+
+                        <form id="command-form" class="console-input-bar">
+
+                            <input id="cmd" type="text" placeholder="Ketik perintah RCON di sini..." autocomplete="off">
+
+                            <button type="submit" class="btn btn-primary"
+                                style="border-radius: 0; padding: 0 18px;">Kirim</button>
+
+                        </form>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- FILE MANAGER -->
+
+                <section id="tab-files" hidden>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+
+                        <div>
+
+                            <h2 style="font-size: 18px; font-weight: 700;">File Explorer</h2>
+
+                            <span style="color: var(--text-muted); font-size: 12px;">Klik 2x pada folder atau file untuk
+
+                                berinteraksi</span>
+
+                        </div>
+
+                        <div style="display:flex; gap:6px;">
+
+                            <button class="btn" onclick="createNewFile()"><i data-lucide="file-plus"
+                                    style="width: 14px;"></i> File</button>
+
+                            <button class="btn" onclick="createNewFolder()"><i data-lucide="folder-plus"
+                                    style="width: 14px;"></i> Folder</button>
+
+                            <input type="file" id="file-upload-input" multiple style="display:none;"
+                                onchange="handleUpload(this.files)">
+
+                            <button class="btn btn-primary"
+                                onclick="document.getElementById('file-upload-input').click()"><i
+                                    data-lucide="upload-cloud" style="width: 14px;"></i> Upload</button>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="explorer-layout">
+
+                        <section class="explorer-pane" id="drop-zone">
+
+                            <div class="pane-toolbar">
+
+                                <span id="current-dir-label"
+                                    style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">/root</span>
+
+                                <button class="btn-icon" onclick="loadFiles(currentDir)"><i data-lucide="refresh-cw"
+                                        style="width: 14px;"></i></button>
+
+                            </div>
+
+                            <div class="file-list" id="tree"></div>
+
+                        </section>
+
+
+
+                        <section class="explorer-pane">
+
+                            <div class="pane-toolbar">
+
+                                <span id="active-file" style="font-family: var(--font-mono); font-size: 11px;">Pilih
+
+                                    file dari explorer</span>
+
+                                <div style="display:flex; gap:6px;">
+
+                                    <button class="btn" id="download-btn" onclick="downloadCurrentFile()" disabled><i
+                                            data-lucide="download" style="width: 14px;"></i> Download</button>
+
+                                    <button class="btn btn-primary" onclick="saveFile()"><i data-lucide="save"
+                                            style="width: 14px;"></i> Simpan</button>
+
+                                </div>
+
+                            </div>
+
+                            <textarea id="file-content" class="editor-textarea"
+                                placeholder="// Pilih file lalu klik sekali lagi untuk membuka editor..."
+                                disabled></textarea>
+
+                        </section>
+
+                    </div>
+
+                </section>
+            </main>
+        </div>
+
+        <nav class="mobile-nav" aria-label="Navigasi utama">
+            <button class="nav-link active" type="button" data-tab="console">
+                <i data-lucide="terminal" aria-hidden="true"></i>
+                <span>Terminal</span>
+            </button>
+            <button class="nav-link" type="button" data-tab="files">
+                <i data-lucide="folder-tree" aria-hidden="true"></i>
+                <span>File Manager</span>
+            </button>
+        </nav>
+    </div>
+
+
+
+    <div id="toast" class="toast" hidden></div>
+
+
 
     <script>
-        (() => {
-            'use strict';
 
-            let currentFile = '';
-            let currentDir = '';
-            let socket = null;
-            let reconnectTimer = null;
-            let reconnectDelay = 1000;
-            let lineCount = 0;
-            let toastTimer = null;
-            let loadingFile = false;
-            let savedContent = '';
-            let fileRequestId = 0;
-            let directoryRequestId = 0;
+        let currentFile = '';
 
-            const $ = id => document.getElementById(id);
+        let currentDir = '';
+        let selectedPath = '';
 
-            const term = $('terminal');
-            const tree = $('tree');
-            const editor = $('file-content');
+        let ws = null;
 
-            $('year').textContent = new Date().getFullYear();
-            document.querySelectorAll('.year-copy').forEach(el => {
-                el.textContent = new Date().getFullYear();
-            });
 
-            function notify(message, error = false) {
-                const toast = $('toast');
-                toast.textContent = message;
-                toast.classList.toggle('error', error);
-                toast.hidden = false;
 
-                clearTimeout(toastTimer);
-                toastTimer = setTimeout(() => {
-                    toast.hidden = true;
-                }, 3500);
+        const $ = id => document.getElementById(id);
+
+
+
+        function notify(msg) {
+
+            const t = $('toast');
+
+            t.innerHTML = `<i data-lucide="info" style="width:14px;"></i> ${msg}`;
+
+            t.hidden = false;
+
+            lucide.createIcons();
+
+            setTimeout(() => t.hidden = true, 3000);
+
+        }
+
+
+
+        async function checkAuth() {
+
+            const res = await fetch('/api/auth/check');
+
+            const data = await res.json();
+
+            if (data.authenticated) {
+
+                $('login-screen').hidden = true;
+
+                initWS();
+
+            } else {
+
+                $('login-screen').hidden = false;
+
             }
 
-            function appendLog(message, className = 'terminal-line') {
-                const fragment = document.createDocumentFragment();
-                const lines = String(message).replace(/\r/g, '').split('\n');
+            lucide.createIcons();
 
-                lines.forEach((line, index) => {
-                    if (index > 0) fragment.appendChild(document.createTextNode('\n'));
+        }
 
-                    const span = document.createElement('span');
-                    span.className = className;
-                    span.textContent = line;
-                    fragment.appendChild(span);
-                });
 
-                term.appendChild(fragment);
-                term.appendChild(document.createTextNode('\n'));
 
-                lineCount += lines.length;
-                $('line-count').textContent = `${lineCount} lines`;
+        $('login-form').onsubmit = async (e) => {
 
-                // Batasi jumlah output agar dashboard tidak terus membengkak.
-                while (term.childNodes.length > 1000) {
-                    term.removeChild(term.firstChild);
-                }
+            e.preventDefault();
+
+            const res = await fetch('/api/login', {
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/json' },
+
+                body: JSON.stringify({ username: $('login-user').value, password: $('login-pass').value })
+
+            });
+
+            if (res.ok) {
+
+                $('login-screen').hidden = true;
+
+                notify('Otentikasi berhasil');
+
+                initWS();
+
+            } else {
+
+                notify('Username atau password salah');
+
+            }
+
+        };
+
+
+
+        $('logout-btn').onclick = async () => {
+
+            await fetch('/api/logout', { method: 'POST' });
+
+            location.reload();
+
+        };
+
+
+
+        function initWS() {
+
+            const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+
+            ws = new WebSocket(`${protocol}//${location.host}`);
+
+            ws.onmessage = e => {
+
+                const term = $('terminal');
+
+                term.innerText += e.data;
 
                 term.scrollTop = term.scrollHeight;
-            }
 
-            function setConnection(connected) {
-                $('ws-label').textContent = connected ? 'Connected' : 'Disconnected';
-                $('side-status').textContent = connected ? 'Log stream aktif' : 'Koneksi terputus';
-                $('connection-status').textContent = connected ? 'CONNECTED' : 'OFFLINE';
-                $('connection-status').className =
-                    `stat-value ${connected ? 'green' : 'orange'}`;
-                $('terminal-state').textContent = connected ? 'LIVE STREAM' : 'WAITING';
-                $('ws-dot').classList.toggle('connected', connected);
-                $('side-dot').classList.toggle('connected', connected);
-                $('badge-dot').classList.toggle('connected', connected);
-                $('badge-status').textContent = connected ? 'Connected' : 'Offline';
-            }
+            };
 
-            // Navigasi tab
-            function setTab(tab) {
-                const isConsole = tab === 'console';
+        }
 
-                $('tab-console').hidden = !isConsole;
-                $('tab-files').hidden = isConsole;
 
-                document.querySelectorAll('.nav-btn').forEach(button => {
-                    const active = button.dataset.tab === tab;
-                    button.classList.toggle('active', active);
 
-                    if (active) button.setAttribute('aria-current', 'page');
-                    else button.removeAttribute('aria-current');
+        document.querySelectorAll('.nav-link').forEach(btn => {
+
+            btn.onclick = () => {
+
+                const tab = btn.dataset.tab;
+
+                document.querySelectorAll('.nav-link').forEach(b => {
+                    b.classList.toggle('active', b.dataset.tab === tab);
                 });
 
-                if (!isConsole && !currentFile) {
-                    loadFiles(currentDir);
-                }
-            }
+                $('tab-console').hidden = tab !== 'console';
 
-            document.querySelectorAll('.nav-btn').forEach(button => {
-                button.addEventListener('click', () => setTab(button.dataset.tab));
-            });
+                $('tab-files').hidden = tab !== 'files';
 
-            // WebSocket log stream
-            function connectWebSocket() {
-                clearTimeout(reconnectTimer);
+                if (tab === 'files') loadFiles(currentDir);
 
-                if (socket) {
-                    socket.onopen = null;
-                    socket.onmessage = null;
-                    socket.onerror = null;
-                    socket.onclose = null;
+            };
 
-                    if (socket.readyState < WebSocket.CLOSING) socket.close();
-                }
+        });
 
-                const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
 
-                try {
-                    socket = new WebSocket(`${protocol}//${location.host}`);
-                } catch (error) {
-                    setConnection(false);
-                    scheduleReconnect();
-                    return;
-                }
 
-                const thisSocket = socket;
+        async function control(action) {
 
-                thisSocket.onopen = () => {
-                    if (socket !== thisSocket) return;
-                    reconnectDelay = 1000;
-                    setConnection(true);
-                    appendLog('[INFO] WebSocket connected.');
-                };
+            const res = await fetch('/api/control', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action }) });
 
-                thisSocket.onmessage = event => {
-                    if (socket !== thisSocket) return;
-                    appendLog(event.data);
-                };
+            const data = await res.json();
 
-                thisSocket.onerror = () => {
-                    if (socket === thisSocket) setConnection(false);
-                };
+            notify(data.message || data.error);
 
-                thisSocket.onclose = () => {
-                    if (socket !== thisSocket) return;
-                    setConnection(false);
-                    scheduleReconnect();
-                };
-            }
+        }
 
-            function scheduleReconnect() {
-                clearTimeout(reconnectTimer);
-                reconnectTimer = setTimeout(() => {
-                    reconnectDelay = Math.min(reconnectDelay * 2, 15000);
-                    connectWebSocket();
-                }, reconnectDelay);
-            }
 
-            connectWebSocket();
 
-            // API helper
-            async function requestJSON(url, options = {}) {
-                const response = await fetch(url, options);
+        $('command-form').onsubmit = async (e) => {
 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
+            e.preventDefault();
 
-                return response.json();
-            }
+            const input = $('cmd');
 
-            // Start / Restart / Stop
-            async function control(action) {
-                const button = document.querySelector(`[data-action="${action}"]`);
-                if (button.disabled) return;
+            const res = await fetch('/api/command', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ command: input.value }) });
 
-                const labels = {
-                    start: 'Start',
-                    restart: 'Restart',
-                    stop: 'Stop'
-                };
+            const data = await res.json();
 
-                button.disabled = true;
-                const originalText = button.textContent;
-                button.textContent = 'Memproses...';
+            $('terminal').innerText += `\n> ${input.value}\n${data.output || data.error}\n`;
 
-                try {
-                    const data = await requestJSON('/api/control', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action })
-                    });
+            input.value = '';
 
-                    if (data.error) throw new Error(data.error);
+        };
 
-                    notify(data.message || `${labels[action]} berhasil dikirim.`);
-                    $('server-status').textContent = action.toUpperCase();
-                    $('server-status').className =
-                        `stat-value ${action === 'stop' ? 'orange' : 'green'}`;
 
-                    appendLog(`[CONTROL] ${data.message || action}`);
-                } catch (error) {
-                    notify(`Gagal ${labels[action].toLowerCase()}: ${error.message}`, true);
-                    appendLog(`[ERROR] ${error.message}`);
-                } finally {
-                    button.disabled = false;
-                    button.textContent = originalText;
-                }
-            }
 
-            document.querySelectorAll('[data-action]').forEach(button => {
-                button.addEventListener('click', () => control(button.dataset.action));
-            });
+        async function loadFiles(dir = '') {
 
-            // RCON command
-            $('command-form').addEventListener('submit', async event => {
-                event.preventDefault();
+            currentDir = dir;
+            selectedPath = '';
 
-                const input = $('cmd');
-                const command = input.value.trim();
-                if (!command) return;
+            $('current-dir-label').textContent = '/' + dir;
 
-                input.disabled = true;
+            const res = await fetch(`/api/files?dir=${encodeURIComponent(dir)}`);
 
-                try {
-                    const data = await requestJSON('/api/command', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ command })
-                    });
+            const files = await res.json();
 
-                    appendLog(`> ${command}`);
+            const tree = $('tree');
 
-                    if (data.output) appendLog(data.output);
-                    if (data.error) appendLog(`[ERROR] ${data.error}`);
+            tree.innerHTML = '';
 
-                    if (data.error) notify(data.error, true);
-                    input.value = '';
-                } catch (error) {
-                    appendLog(`[ERROR] ${error.message}`);
-                    notify(`Command gagal: ${error.message}`, true);
-                } finally {
-                    input.disabled = false;
-                    input.focus();
-                }
-            });
 
-            // File manager
-            function showTreeMessage(message, error = false) {
-                tree.replaceChildren();
 
-                const element = document.createElement('div');
-                element.className = 'panel-subtitle';
-                element.textContent = message;
+            if (dir) {
 
-                if (error) element.classList.add('red');
-                tree.appendChild(element);
-            }
+                const back = document.createElement('div');
 
-            async function loadFiles(dir = '') {
-                currentDir = dir;
-                const requestId = ++directoryRequestId;
+                back.className = 'file-row';
 
-                showTreeMessage('Memuat file...');
+                back.innerHTML = `<div class="file-info"><i data-lucide="corner-left-up" style="width:14px;"></i> ..</div>`;
 
-                try {
-                    const files = await requestJSON(
-                        `/api/files?dir=${encodeURIComponent(dir)}`
-                    );
+                back.onclick = () => {
 
-                    if (requestId !== directoryRequestId) return;
-
-                    if (!Array.isArray(files)) {
-                        throw new Error('Format respons daftar file tidak valid.');
-                    }
-
-                    tree.replaceChildren();
-
-                    if (dir) {
-                        const back = document.createElement('button');
-                        back.className = 'file-item';
-                        back.type = 'button';
-                        back.textContent = '↰ Kembali ke root';
-                        back.addEventListener('click', () => loadFiles(''));
-                        tree.appendChild(back);
-                    }
-
-                    if (files.length === 0) {
-                        showTreeMessage('Folder ini kosong.');
+                    if (selectedPath === '__parent__') {
+                        selectedPath = '';
+                        const parent = dir.split('/').slice(0, -1).join('/');
+                        loadFiles(parent);
                         return;
                     }
 
-                    files.forEach(file => {
-                        const button = document.createElement('button');
-                        button.type = 'button';
-                        button.className = 'file-item';
-                        button.dataset.path = file.relPath;
+                    document.querySelectorAll('.file-row').forEach(row => row.classList.remove('active'));
+                    back.classList.add('active');
+                    selectedPath = '__parent__';
 
-                        if (!file.isDirectory && file.relPath === currentFile) {
-                            button.classList.add('active');
-                        }
+                };
 
-                        const icon = document.createElement('span');
-                        icon.className = 'file-icon';
-                        icon.textContent = file.isDirectory ? '▰' : '▤';
+                tree.appendChild(back);
 
-                        const name = document.createElement('span');
-                        name.textContent = file.name;
-
-                        button.append(icon, name);
-
-                        button.addEventListener('click', () => {
-                            if (file.isDirectory) loadFiles(file.relPath);
-                            else openFile(file.relPath);
-                        });
-
-                        tree.appendChild(button);
-                    });
-                } catch (error) {
-                    if (requestId !== directoryRequestId) return;
-                    showTreeMessage(`Gagal memuat file: ${error.message}`, true);
-                }
             }
 
-            async function openFile(file) {
-                if (editor.value !== savedContent && currentFile) {
-                    const proceed = confirm(
-                        'Perubahan file belum disimpan. Lanjut membuka file lain?'
-                    );
 
-                    if (!proceed) return;
-                }
 
-                const requestId = ++fileRequestId;
-                loadingFile = true;
-                editor.disabled = true;
-                $('editor-state').textContent = 'Loading...';
-                $('active-file').textContent = file;
+            files.forEach(f => {
 
-                try {
-                    const response = await fetch(
-                        `/api/files/read?file=${encodeURIComponent(file)}`
-                    );
+                const item = document.createElement('div');
 
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}`);
+                item.className = 'file-row';
+
+                let icon = f.isDirectory ? 'folder' : (f.name.endsWith('.zip') ? 'archive' : 'file-text');
+
+
+
+                item.innerHTML = `
+
+                    <div class="file-info">
+
+                        <i data-lucide="${icon}" style="width:14px;"></i>
+
+                        <span>${f.name}</span>
+
+                    </div>
+
+                    <div class="file-actions">
+
+                        ${f.name.endsWith('.zip') ? `<button class="btn-icon" onclick="unzipFile('${f.relPath}')" title="Unzip"><i data-lucide="file-output" style="width:14px;"></i></button>` : ''}
+
+                        ${!f.isDirectory && !f.name.endsWith('.zip') ? `<button class="btn-icon" onclick="zipFile('${f.relPath}')" title="Zip"><i data-lucide="archive" style="width:14px;"></i></button>` : ''}
+
+                        <button class="btn-icon" onclick="renameItem('${f.relPath}', '${f.name}')" title="Rename"><i data-lucide="edit-2" style="width:14px;"></i></button>
+
+                        <button class="btn-icon" onclick="deleteItem('${f.relPath}')" title="Hapus"><i data-lucide="trash-2" style="width:14px; color:var(--accent-red);"></i></button>
+
+                    </div>
+
+                `;
+
+
+
+                item.onclick = (event) => {
+
+                    if (event.target.closest('.file-actions')) return;
+
+                    if (selectedPath === f.relPath) {
+                        selectedPath = '';
+                        if (f.isDirectory) {
+                            loadFiles(f.relPath);
+                        } else {
+                            openFile(f.relPath);
+                            if (window.matchMedia('(max-width: 760px)').matches) {
+                                $('active-file').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                        }
+                        return;
                     }
 
-                    const content = await response.text();
+                    document.querySelectorAll('.file-row').forEach(row => row.classList.remove('active'));
+                    item.classList.add('active');
+                    selectedPath = f.relPath;
 
-                    if (requestId !== fileRequestId) return;
+                };
 
-                    currentFile = file;
-                    savedContent = content;
-                    editor.value = content;
-                    editor.disabled = false;
 
-                    $('editor-language').textContent =
-                        file.split('.').pop().toUpperCase();
 
-                    $('editor-state').textContent = 'Saved';
-                    updateDirtyState();
+                tree.appendChild(item);
 
-                    document.querySelectorAll('.file-item[data-path]').forEach(button => {
-                        button.classList.toggle(
-                            'active',
-                            button.dataset.path === currentFile
-                        );
-                    });
-                } catch (error) {
-                    if (requestId !== fileRequestId) return;
-                    notify(`Gagal membuka file: ${error.message}`, true);
-                    $('editor-state').textContent = 'Read failed';
-                } finally {
-                    if (requestId === fileRequestId) loadingFile = false;
-                }
-            }
-
-            function updateDirtyState() {
-                const dirty = currentFile && editor.value !== savedContent;
-                $('editor-state').textContent = dirty ? 'Unsaved changes' : 'Saved';
-            }
-
-            editor.addEventListener('input', updateDirtyState);
-
-            async function saveFile() {
-                if (!currentFile) {
-                    notify('Pilih file terlebih dahulu.', true);
-                    return;
-                }
-
-                if (loadingFile) return;
-
-                const button = $('save-file');
-                const content = editor.value;
-                button.disabled = true;
-                button.textContent = 'Menyimpan...';
-
-                try {
-                    const data = await requestJSON('/api/files/save', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ file: currentFile, content })
-                    });
-
-                    if (data.error) throw new Error(data.error);
-
-                    savedContent = content;
-                    updateDirtyState();
-                    notify(data.message || 'File berhasil disimpan.');
-                } catch (error) {
-                    notify(`Gagal menyimpan: ${error.message}`, true);
-                } finally {
-                    button.disabled = false;
-                    button.textContent = '♧ Simpan';
-                }
-            }
-
-            $('save-file').addEventListener('click', saveFile);
-            $('refresh-files').addEventListener('click', () => loadFiles(currentDir));
-
-            // Peringatan sebelum meninggalkan halaman dengan perubahan yang belum disimpan.
-            window.addEventListener('beforeunload', event => {
-                if (currentFile && editor.value !== savedContent) {
-                    event.preventDefault();
-                    event.returnValue = '';
-                }
             });
-        })();
+
+            lucide.createIcons();
+
+        }
+
+
+
+        async function openFile(file) {
+
+            currentFile = file;
+
+            $('active-file').textContent = file;
+
+            $('download-btn').disabled = false;
+
+            const res = await fetch(`/api/files/read?file=${encodeURIComponent(file)}`);
+
+            const text = await res.text();
+
+            $('file-content').value = text;
+
+            $('file-content').disabled = false;
+
+        }
+
+
+
+        async function saveFile() {
+
+            if (!currentFile) return notify('Pilih file terlebih dahulu');
+
+            const res = await fetch('/api/files/save', {
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/json' },
+
+                body: JSON.stringify({ file: currentFile, content: $('file-content').value })
+
+            });
+
+            const data = await res.json();
+
+            notify(data.message || data.error);
+
+        }
+
+
+
+        async function createNewFile() {
+
+            const filename = prompt('Masukkan nama file baru:');
+
+            if (!filename) return;
+
+            const res = await fetch('/api/files/create-file', {
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/json' },
+
+                body: JSON.stringify({ dir: currentDir, filename })
+
+            });
+
+            const data = await res.json();
+
+            notify(data.message || data.error);
+
+            loadFiles(currentDir);
+
+        }
+
+
+
+        async function createNewFolder() {
+
+            const foldername = prompt('Masukkan nama folder baru:');
+
+            if (!foldername) return;
+
+            const res = await fetch('/api/files/create-folder', {
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/json' },
+
+                body: JSON.stringify({ dir: currentDir, foldername })
+
+            });
+
+            const data = await res.json();
+
+            notify(data.message || data.error);
+
+            loadFiles(currentDir);
+
+        }
+
+
+
+        async function deleteItem(relPath) {
+
+            if (!confirm(`Hapus ${relPath}?`)) return;
+
+            const res = await fetch('/api/files/delete', {
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/json' },
+
+                body: JSON.stringify({ relPath })
+
+            });
+
+            const data = await res.json();
+
+            notify(data.message || data.error);
+
+            loadFiles(currentDir);
+
+        }
+
+
+
+        async function renameItem(oldRelPath, oldName) {
+
+            const newName = prompt('Rename item:', oldName);
+
+            if (!newName || newName === oldName) return;
+
+            const res = await fetch('/api/files/rename', {
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/json' },
+
+                body: JSON.stringify({ oldRelPath, newName })
+
+            });
+
+            const data = await res.json();
+
+            notify(data.message || data.error);
+
+            loadFiles(currentDir);
+
+        }
+
+
+
+        function downloadCurrentFile() {
+
+            if (currentFile) window.location.href = `/api/files/download?file=${encodeURIComponent(currentFile)}`;
+
+        }
+
+
+
+        async function zipFile(relPath) {
+
+            const res = await fetch('/api/files/zip', {
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/json' },
+
+                body: JSON.stringify({ relPath, zipName: relPath.split('/').pop().split('.')[0] + '.zip' })
+
+            });
+
+            const data = await res.json();
+
+            notify(data.message || data.error);
+
+            loadFiles(currentDir);
+
+        }
+
+
+
+        async function unzipFile(relPath) {
+
+            const res = await fetch('/api/files/unzip', {
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/json' },
+
+                body: JSON.stringify({ relPath })
+
+            });
+
+            const data = await res.json();
+
+            notify(data.message || data.error);
+
+            loadFiles(currentDir);
+
+        }
+
+
+
+        const dropZone = $('drop-zone');
+
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('drop-highlight'); };
+
+        dropZone.ondragleave = () => dropZone.classList.remove('drop-highlight');
+
+        dropZone.ondrop = (e) => {
+
+            e.preventDefault();
+
+            dropZone.classList.remove('drop-highlight');
+
+            handleUpload(e.dataTransfer.files);
+
+        };
+
+
+
+        async function handleUpload(files) {
+
+            if (!files.length) return;
+
+            const formData = new FormData();
+
+            for (let f of files) formData.append('files', f);
+
+
+
+            notify('Mengupload file...');
+
+            const res = await fetch(`/api/files/upload?dir=${encodeURIComponent(currentDir)}`, {
+
+                method: 'POST',
+
+                body: formData
+
+            });
+
+            const data = await res.json();
+
+            notify(data.message || data.error);
+
+            loadFiles(currentDir);
+
+        }
+
+
+
+        checkAuth();
+
     </script>
+
 </body>
+
+
 
 </html>
