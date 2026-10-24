@@ -839,6 +839,37 @@
                 min-width: 0;
             }
 
+            .explorer-layout.editor-focused {
+                grid-template-columns: minmax(0, 1fr);
+                height: calc(100vh - 92px);
+            }
+
+            .editor-focused > div:first-child {
+                display: none !important;
+            }
+
+            .editor-focused #drop-zone {
+                display: none;
+            }
+
+            .editor-focused #editor-pane {
+                height: 100%;
+                min-height: 0;
+            }
+
+            .editor-focused .editor-textarea {
+                min-height: 0;
+                height: 100%;
+            }
+
+            #show-files-btn {
+                display: none;
+            }
+
+            .editor-focused #show-files-btn {
+                display: inline-flex;
+            }
+
             .file-info span {
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -939,6 +970,16 @@
                     flex-direction: column;
                     height: auto;
                     gap: 12px;
+                }
+
+                .explorer-layout.editor-focused {
+                    display: flex;
+                    height: calc(100dvh - 170px);
+                    min-height: 280px;
+                }
+
+                .editor-focused #editor-pane {
+                    flex: 1;
                 }
 
                 .explorer-pane {
@@ -1208,7 +1249,7 @@
 
 
 
-                    <div class="explorer-layout">
+                    <div class="explorer-layout" id="explorer-layout">
 
                         <section class="explorer-pane" id="drop-zone">
 
@@ -1228,13 +1269,18 @@
 
 
 
-                        <section class="explorer-pane">
+                        <section class="explorer-pane" id="editor-pane">
 
                             <div class="pane-toolbar">
 
-                                <span id="active-file" style="font-family: var(--font-mono); font-size: 11px;">Pilih
-
-                                    file dari explorer</span>
+                                <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                                    <button class="btn" id="show-files-btn" type="button" onclick="showFileList()">
+                                        <i data-lucide="arrow-left" style="width:14px;"></i> Daftar File
+                                    </button>
+                                    <span id="active-file"
+                                        style="font-family: var(--font-mono); font-size: 11px;">Pilih file dari
+                                        explorer</span>
+                                </div>
 
                                 <div style="display:flex; gap:6px;">
 
@@ -1539,9 +1585,6 @@
                             loadFiles(f.relPath);
                         } else {
                             openFile(f.relPath);
-                            if (window.matchMedia('(max-width: 760px)').matches) {
-                                $('active-file').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            }
                         }
                         return;
                     }
@@ -1562,6 +1605,10 @@
 
         }
 
+        function showFileList() {
+            $('explorer-layout').classList.remove('editor-focused');
+            $('tab-files').classList.remove('editor-focused');
+        }
 
 
         async function openFile(file) {
@@ -1579,6 +1626,8 @@
             $('file-content').value = text;
 
             $('file-content').disabled = false;
+            $('explorer-layout').classList.add('editor-focused');
+            $('tab-files').classList.add('editor-focused');
 
         }
 
